@@ -1,0 +1,46 @@
+{
+  "JwtOptions": {
+    "SecretKey": "YourVerySecureSecretKeyHere",
+    "Issuer": "GatewayService",
+    "Audience": "ResourceService,UserManagementService",
+    "AccessTokenExpirationMinutes": 60,
+    "RefreshTokenExpireDays": 7
+  },
+  "Ocelot": {
+    "Routes": [
+      {
+        "DownstreamPathTemplate": "/api/{everything}",
+        "DownstreamScheme": "http",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "localhost",
+            "Port": 5002
+          }
+        ],
+        "UpstreamPathTemplate": "/resource/{everything}",
+        "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+        "AuthenticationOptions": {
+          "AuthenticationProviderKey": "Bearer",
+          "AllowedScopes": []
+        }
+      },
+      {
+        "DownstreamPathTemplate": "/api/{everything}",
+        "DownstreamScheme": "http",
+        "DownstreamHostAndPorts": [
+          {
+            "Host": "localhost",
+            "Port": 5003
+          }
+        ],
+        "UpstreamPathTemplate": "/usermanagement/{everything}",
+        "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+        "AuthenticationOptions": {
+          "AuthenticationProviderKey": "Bearer",
+          "AllowedScopes": []
+        }
+      }
+    ]
+  },
+  "AllowedHosts": "*"
+}

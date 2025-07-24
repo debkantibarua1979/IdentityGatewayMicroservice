@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+option csharp_namespace = "UserManagement.Protos";
+
+package usermanagement;
+
+// gRPC service to fetch user permissions
+service UserPermissionService {
+  rpc GetUserPermissions (UserPermissionRequest) returns (UserPermissionResponse);
+}
+
+// Request message containing user identifier
+message UserPermissionRequest {
+  string userId = 1;
+}
+
+// Response message containing user permissions
+message UserPermissionResponse {
+  string userId = 1;
+  repeated Permission permissions = 2;
+}
+
+// Message representing a single permission
+message Permission {
+  string permissionId = 1;
+  string permissionName = 2;
+  repeated string ancestors = 3;
+}
+
+// User Data Transfer Object
+message User {
+  string id = 1;
+  string userName = 2;
+  string email = 3;
+  string roleId = 4;
+}
