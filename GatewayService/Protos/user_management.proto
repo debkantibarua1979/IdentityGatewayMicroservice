@@ -1,36 +1,56 @@
 syntax = "proto3";
 
-option csharp_namespace = "UserManagement.Protos";
+option csharp_namespace = "GatewayService.Protos";
 
 package usermanagement;
 
-// gRPC service to fetch user permissions
-service UserPermissionService {
-  rpc GetUserPermissions (UserPermissionRequest) returns (UserPermissionResponse);
+service UserServiceProto {
+  rpc Register (RegisterRequest) returns (RegisterResponse);
+  rpc Login (LoginRequest) returns (LoginResponse);
+  rpc GetUserByEmail (EmailRequest) returns (LoginResponse);
+  rpc GetUserById (UserIdRequest) returns (LoginResponse);
+  rpc GetUserPermissions (UserIdRequest) returns (UserPermissionsResponse);
 }
 
-// Request message containing user identifier
-message UserPermissionRequest {
-  string userId = 1;
-}
-
-// Response message containing user permissions
-message UserPermissionResponse {
-  string userId = 1;
-  repeated Permission permissions = 2;
-}
-
-// Message representing a single permission
-message Permission {
-  string permissionId = 1;
-  string permissionName = 2;
-  repeated string ancestors = 3;
-}
-
-// User Data Transfer Object
-message User {
-  string id = 1;
-  string userName = 2;
-  string email = 3;
+// User registration
+message RegisterRequest {
+  string username = 1;
+  string email = 2;
+  string password = 3;
   string roleId = 4;
+}
+
+message RegisterResponse {
+  string id = 1;
+}
+
+// User login
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string id = 1;
+  string username = 2;
+  string email = 3;
+}
+
+// Request by email
+message EmailRequest {
+  string email = 1;
+}
+
+// Request by userId
+message UserIdRequest {
+  string userId = 1;
+}
+
+// User permissions response
+message UserPermissionsResponse {
+  repeated Permission permissions = 1;
+}
+
+message Permission {
+  string permissionName = 1;
 }

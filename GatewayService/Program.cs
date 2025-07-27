@@ -1,9 +1,10 @@
 using GatewayService.Middlewares;
+using GatewayService.Protos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
-using UserManagement.Protos;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,7 +38,7 @@ builder.Services.AddAuthentication(options =>
     });
 
 // gRPC Client for UserManagementService
-builder.Services.AddGrpcClient<UserPermissionService.UserPermissionServiceClient>(options =>
+builder.Services.AddGrpcClient<UserServiceProto.UserServiceProtoClient>(options =>
 {
     options.Address = new Uri("https://localhost:5005");
 });
