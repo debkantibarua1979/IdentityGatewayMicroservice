@@ -151,5 +151,23 @@ public class AuthService : IAuthService
     {
         return _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "unknown";
     }
+    
+    public async Task<GenericResult> LogoutAsync(string refreshToken)
+    {
+        var userId = ValidateJwtAndGetUserId(refreshToken);
+        if (userId == null)
+            return GenericResult.Fail("Invalid refresh token.");
+
+        try
+        {
+            await _refreshTokenRepository.RevokeAsync(userId.Value, refreshToken);
+            return GenericResult.Ok("Logout successful.");
+        }
+        catch (Exception ex)
+        {
+            return GenericResult.Fail($"Logout failed: {ex.Message}");
+        }
+    }
+
 }
 

@@ -10,6 +10,7 @@ service UserServiceProto {
   rpc GetUserByEmail (EmailRequest) returns (LoginResponse);
   rpc GetUserById (UserIdRequest) returns (LoginResponse);
   rpc GetUserPermissions (UserIdRequest) returns (UserPermissionsResponse);
+  rpc Logout (LogoutRequest) returns (LogoutResponse);
 }
 
 // User registration
@@ -53,4 +54,12 @@ message UserPermissionsResponse {
 
 message Permission {
   string permissionName = 1;
+}
+
+message LogoutRequest {
+  string refreshToken = 1;
+}
+
+message LogoutResponse {
+  string message = 1;
 }
