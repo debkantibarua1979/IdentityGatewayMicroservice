@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GatewayService", "GatewaySe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManagementService", "UserManagementService\UserManagementService.csproj", "{6F248F0F-F2C4-4D30-836D-27B0FB2CEF81}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceService", "ResourceService\ResourceService.csproj", "{B943C897-C2FE-4843-B572-230E677D116B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceService", "ResourceService\ResourceService.csproj", "{F6F8BF55-F203-481E-8265-5548E4236EA8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{6F248F0F-F2C4-4D30-836D-27B0FB2CEF81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F248F0F-F2C4-4D30-836D-27B0FB2CEF81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F248F0F-F2C4-4D30-836D-27B0FB2CEF81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B943C897-C2FE-4843-B572-230E677D116B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B943C897-C2FE-4843-B572-230E677D116B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B943C897-C2FE-4843-B572-230E677D116B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B943C897-C2FE-4843-B572-230E677D116B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6F8BF55-F203-481E-8265-5548E4236EA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6F8BF55-F203-481E-8265-5548E4236EA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6F8BF55-F203-481E-8265-5548E4236EA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6F8BF55-F203-481E-8265-5548E4236EA8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

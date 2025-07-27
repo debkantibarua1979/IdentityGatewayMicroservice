@@ -1,66 +1,63 @@
+using System.Text;
+using GatewayService.Clients;
 using GatewayService.Middlewares;
-using GatewayService.Protos;
+using GatewayService.Repositories.Implementations;
+using GatewayService.Repositories.Interfaces;
+using GatewayService.Services.Implementations;
+using GatewayService.Services.Interfaces;
+using IdentityService.Dtos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
-
+using Ocelot.Responder;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuration
-var jwtSettings = builder.Configuration.GetSection("JwtOptions");
-var secretKey = jwtSettings["SecretKey"];
+// ---------- Configuration ----------
+builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
 
-// Services
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// ---------- JWT Configuration ----------
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));
+var jwtOptions = builder.Configuration.GetSection("JwtOptions").Get<JwtOptions>()!;
 
-// JWT Authentication Setup
-builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.RequireHttpsMetadata = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSettings["Issuer"],
-            ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(secretKey))
+            ValidIssuer = jwtOptions.Issuer,
+            ValidAudience = jwtOptions.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
+            ClockSkew = TimeSpan.Zero
         };
     });
 
-// gRPC Client for UserManagementService
-builder.Services.AddGrpcClient<UserServiceProto.UserServiceProtoClient>(options =>
-{
-    options.Address = new Uri("https://localhost:5005");
-});
+// ---------- Dependency Injection ----------
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<GrpcUserClient>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<TokenExpirationMiddleware>();
+// ---------- Ocelot with SafeHttpResponder ----------
 
-// Add Ocelot
-builder.Services.AddOcelot(builder.Configuration);
+builder.Services
+    .AddOcelot(builder.Configuration)
+    .Services
+    .AddSingleton<IHttpResponder, SafeHttpResponder>();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-
+// ---------- Middleware Pipeline ----------
+app.UseRouting();
 app.UseAuthentication();
-app.UseMiddleware<TokenExpirationMiddleware>();
 app.UseAuthorization();
-
-app.MapControllers();
-app.UseOcelot().Wait();
+app.UseMiddleware<TokenExpirationMiddleware>();
+await app.UseOcelot();
 
 app.Run();

@@ -9,8 +9,8 @@ using GatewayService.Services.Interfaces;
 using IdentityService.Dtos;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using LoginRequestProto = GatewayService.Dtos.LoginRequest;
-using RegisterRequest = GatewayService.Dtos.RegisterRequest;
+using LoginRequest = GatewayService.Protos.LoginRequest;
+using RegisterRequest = GatewayService.Protos.RegisterRequest;
 
 namespace GatewayService.Services.Implementations;
 
@@ -33,7 +33,7 @@ public class AuthService : IAuthService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<AuthResponse?> LoginAsync(Protos.LoginRequest request)
+    public async Task<AuthResponse?> LoginAsync(LoginRequest request)
     {
         var user = await _userClient.LoginAsync(request);
         if (user == null || string.IsNullOrEmpty(user.Id))
@@ -95,7 +95,7 @@ public class AuthService : IAuthService
 
     
 
-    public async Task<GenericResult> RegisterAsync(Protos.RegisterRequest request)
+    public async Task<GenericResult> RegisterAsync(RegisterRequest request)
     {
         try
         {

@@ -1,46 +1,35 @@
 {
-  "JwtOptions": {
-    "SecretKey": "YourVerySecureSecretKeyHere",
-    "Issuer": "GatewayService",
-    "Audience": "ResourceService,UserManagementService",
-    "AccessTokenExpirationMinutes": 60,
-    "RefreshTokenExpireDays": 7
+  "AuthenticationOptions": {
+    "AuthenticationProviderKey": "Bearer",
+    "AllowedScopes": []
   },
-  "Ocelot": {
-    "Routes": [
-      {
-        "DownstreamPathTemplate": "/api/{everything}",
-        "DownstreamScheme": "http",
-        "DownstreamHostAndPorts": [
-          {
-            "Host": "localhost",
-            "Port": 5002
-          }
-        ],
-        "UpstreamPathTemplate": "/resource/{everything}",
-        "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-        "AuthenticationOptions": {
-          "AuthenticationProviderKey": "Bearer",
-          "AllowedScopes": []
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/user/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5005
         }
-      },
-      {
-        "DownstreamPathTemplate": "/api/{everything}",
-        "DownstreamScheme": "http",
-        "DownstreamHostAndPorts": [
-          {
-            "Host": "localhost",
-            "Port": 5003
-          }
-        ],
-        "UpstreamPathTemplate": "/usermanagement/{everything}",
-        "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-        "AuthenticationOptions": {
-          "AuthenticationProviderKey": "Bearer",
-          "AllowedScopes": []
+      ],
+      "UpstreamPathTemplate": "/user/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/resource/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5010
         }
-      }
-    ]
-  },
-  "AllowedHosts": "*"
+      ],
+      "UpstreamPathTemplate": "/resource/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "https://localhost:7000"
+  }
 }
