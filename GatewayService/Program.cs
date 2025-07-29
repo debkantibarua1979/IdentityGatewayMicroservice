@@ -1,5 +1,6 @@
 using System.Text;
 using GatewayService.Clients;
+using GatewayService.Data;
 using GatewayService.Middlewares;
 using GatewayService.Repositories.Implementations;
 using GatewayService.Repositories.Interfaces;
@@ -7,6 +8,7 @@ using GatewayService.Services.Implementations;
 using GatewayService.Services.Interfaces;
 using IdentityService.Dtos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
@@ -38,14 +40,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+// ---------- EF Core: AppDbContext ----------
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+    // or UseSqlite / UseNpgsql depending on your DB
+});
+
 // ---------- Dependency Injection ----------
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<GrpcUserClient>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<TokenExpirationMiddleware>();
-// ---------- Ocelot with SafeHttpResponder ----------
 
+// ---------- Ocelot with SafeHttpResponder ----------
 builder.Services
     .AddOcelot(builder.Configuration)
     .Services
