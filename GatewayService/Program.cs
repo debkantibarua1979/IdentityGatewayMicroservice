@@ -18,10 +18,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ---------- Configuration ----------
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
 
 // ---------- JWT Configuration ----------
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));
-var jwtOptions = builder.Configuration.GetSection("JwtOptions").Get<JwtOptions>()!;
+
+var jwtOptions = builder.Configuration
+    .GetSection("JwtOptions")
+    .Get<JwtOptions>();
+
+if (jwtOptions == null)
+    throw new InvalidOperationException("Missing JwtOptions configuration in appsettings.json");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
