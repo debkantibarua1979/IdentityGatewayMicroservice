@@ -1,11 +1,12 @@
-using GatewayService.Dtos;
+using UserManagementService.Dtos;
 using UserManagementService.Entities;
+using UserManagementService.Extensions;
 using UserManagementService.Repositories.Interfaces;
+using UserManagementService.Services.Interfaces;
 
 namespace UserManagementService.Services.Implementations;
 
-
-public class UserService
+public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
 
@@ -14,24 +15,28 @@ public class UserService
         _userRepository = userRepository;
     }
 
-    public async Task<User?> GetByIdAsync(Guid id)
+    public async Task<UserResponseDto?> GetByIdAsync(Guid id)
     {
-        return await _userRepository.GetByIdAsync(id);
+        var user = await _userRepository.GetByIdAsync(id);
+        return user?.ToDto();
     }
 
-    public async Task<User?> GetByUsernameAsync(string username)
+    public async Task<UserResponseDto?> GetByUsernameAsync(string username)
     {
-        return await _userRepository.GetByUsernameAsync(username);
+        var user = await _userRepository.GetByUsernameAsync(username);
+        return user?.ToDto();
     }
 
-    public async Task<User?> GetByEmailAsync(string email)
+    public async Task<UserResponseDto?> GetUserByEmailAsync(string email)
     {
-        return await _userRepository.GetByEmailAsync(email);
+        var user = await _userRepository.GetByEmailAsync(email);
+        return user?.ToDto();
     }
 
-    public async Task<List<User>> GetAllAsync()
+    public async Task<List<UserResponseDto>> GetAllAsync()
     {
-        return await _userRepository.GetAllAsync();
+        var users = await _userRepository.GetAllAsync();
+        return users.Select(u => u.ToDto()).ToList();
     }
 
     public async Task<bool> ExistsByUsernameAsync(string username)
@@ -44,31 +49,41 @@ public class UserService
         return await _userRepository.ExistsByEmailAsync(email);
     }
 
-    public async Task<List<RolePermission>> GetUserPermissionsAsync(Guid userId)
+    public async Task<UserResponseDto?> LoginAsync(LoginRequestDto request)
     {
-        return await _userRepository.GetUserPermissionsAsync(userId);
+        var user = await _userRepository.GetByEmailAsync(request.Email);
+        if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            return null;
+
+        return user.ToDto();
     }
 
-    public async Task<bool> ValidatePasswordAsync(string username, string password)
+    public async Task<RegisterResponseDto?> RegisterAsync(RegisterRequestDto request)
     {
-        return await _userRepository.ValidatePasswordAsync(username, password);
-    }
+        if (await ExistsByEmailAsync(request.Email) || await ExistsByUsernameAsync(request.Username))
+            return null;
 
-    public async Task<User?> LoginAsync(string email, string password)
-    {
-        return await _userRepository.LoginAsync(email, password);
-    }
-
-    public async Task<User> RegisterAsync(RegisterRequest request)
-    {
         var user = new User
         {
             Id = Guid.NewGuid(),
-            UserName = request.UserName,
+            UserName = request.Username,
             Email = request.Email,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             RoleId = request.RoleId
         };
 
-        return await _userRepository.RegisterAsync(user, request.Password);
+        await _userRepository.AddAsync(user);
+
+        return new RegisterResponseDto
+        {
+            Id = user.Id.ToString()
+        };
+    }
+
+    public async Task<UserWithPermissionsDto> GetUserPermissionsAsync(string userId)
+    {
+        var user = await _userRepository.GetByIdAsync(Guid.Parse(userId));
+        return user?.ToWithPermissionsDto() ?? new UserWithPermissionsDto();
     }
 }
+
