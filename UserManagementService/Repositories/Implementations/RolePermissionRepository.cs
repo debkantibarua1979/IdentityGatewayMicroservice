@@ -85,4 +85,22 @@ public class RolePermissionRepository : IRolePermissionRepository
 
         return result;
     }
+    
+    public async Task<RolePermission> AddWithParentAsync(RolePermission rolePermission, Guid parentId)
+    {
+        var parent = await _context.RolePermissions
+            .Include(p => p.Children)
+            .FirstOrDefaultAsync(p => p.Id == parentId);
+
+        if (parent == null)
+            throw new InvalidOperationException($"Parent RolePermission with ID {parentId} not found.");
+
+        rolePermission.ParentId = parentId;
+        parent.Children.Add(rolePermission); // Optional, if tracking children explicitly
+
+        await _context.RolePermissions.AddAsync(rolePermission);
+        return rolePermission;
+    }
+
+    
 }

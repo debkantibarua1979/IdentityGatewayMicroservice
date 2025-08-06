@@ -4,7 +4,7 @@ using UserManagementService.Entities;
 
 namespace UserManagementService.Extensions;
 
-public static class GrpcMappingExtensions
+public static class GrpcMappingExtensions 
 {
     // LoginRequest -> DTO
     public static LoginRequestDto ToDto(this LoginRequest request)
